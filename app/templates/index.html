@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block titulo %}USUARIO{% endblock %}
+
+{% block contenido %}
+<div class="container mt-5 bg-dark">
+    <h1 class="text-primary text-center">Bienvenid@: {{request.session.usuario.first_name}} {{request.session.usuario.last_name}}</h1>
+    <hr>
+    <h4 class="text-white text-center">Crear mensaje </h4>
+    <form action="/crear/mensaje" method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <input type="text" class="form-control" id="inputDescription" name='mensaje'>
+        </div>
+        <button type="submit" class="btn btn-success text-white d-block mx-auto">Enviar mensaje </button>
+    </form>
+    <hr>
+
+    <div class="row">
+        <div class="col-sm-12 reg">
+            <h3 class="text-danger text-center">Mensajes recibidos<h3>
+            {% for msg in mensajes reversed%}
+            <div class="row mt-5 text-white">
+                <h4 class="sta mx-4 text-center text-primary">{{msg.user.first_name}} {{msg.user.last_name}} | {{msg.created_at | date:"d M Y" }} |
+                    Escribio el siguiente mensaje:</h4>
+                <div class="container men text-primary text-center">
+                    <h5 class="stb">{{msg.mensaje}}</h5>
+
+                    <div class="container mt-3">
+                        <form action="/comentario/mensaje" method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <input type="text" class="form-control" id="inputDescription" name='comentario'>
+                            </div>
+                            <input type="hidden" name="id_mensaje_comentario" value="{{msg.id}}">
+                            <button type="submit" class="btn btn-success mb-3 ">Agregar comentario</button>
+                        </form>
+                    </div>
+
+                    <div class="container">
+                        <h5>Comentarios</h5>
+                        {% for com in msg.comentarios.all reversed%}
+
+                        <div class="row">
+                            <h4 class="sta mx-4">{{com.user.first_name}} {{com.user.last_name}} | 
+                                {{com.created_at | date:"d M Y" }} | Comentó:</h4>
+                            <div class="container men">
+                                <h5 class="stb">{{com.comentario}}</h5>
+                            </div>
+                            {% if request.session.usuario.id == com.user.id %}
+                            <div class="d-flex">
+                                <a class="btn btn-danger d-block mx-auto" href="/comentario/{{com.id}}/eliminar"> Eliminar Comentario</a>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block libreria %}
+{% endblock %}
